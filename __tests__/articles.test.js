@@ -50,3 +50,32 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 });
+
+describe("GET /api/articles", () => {
+  test("returns array of all articles", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(13);
+        console.log(articles);
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("author", expect.any(String));
+          expect(article).toHaveProperty("title", expect.any(String));
+          expect(article).toHaveProperty("article_id", expect.any(Number));
+          expect(article).toHaveProperty("topic", expect.any(String));
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          expect(article).toHaveProperty("votes", expect.any(Number));
+          expect(article).toHaveProperty(
+            "article_img_url",
+            expect.any(String)
+          );
+          expect(article).toHaveProperty("comment_count", expect.any(String));
+
+          expect(article).not.toHaveProperty("body");
+        });
+        expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+});
