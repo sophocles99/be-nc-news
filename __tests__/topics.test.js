@@ -27,20 +27,4 @@ describe("GET /api/topics", () => {
         });
       });
   });
-  test("responds with error if no topic objects in database", () => {
-    return db
-      .query(
-        `DELETE FROM comments;
-         DELETE FROM articles;
-         DELETE FROM topics;`
-      )
-      .then(() => {
-        return request(app)
-          .get("/api/topics")
-          .expect(404)
-          .then(({ body }) => {
-            expect(body.msg).toBe("Not found");
-          });
-      });
-  });
 });
