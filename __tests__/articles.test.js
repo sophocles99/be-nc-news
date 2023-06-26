@@ -59,7 +59,6 @@ describe("GET /api/articles", () => {
       .then(({ body }) => {
         const { articles } = body;
         expect(articles).toHaveLength(13);
-        console.log(articles);
         articles.forEach((article) => {
           expect(article).toHaveProperty("author", expect.any(String));
           expect(article).toHaveProperty("title", expect.any(String));
@@ -67,15 +66,49 @@ describe("GET /api/articles", () => {
           expect(article).toHaveProperty("topic", expect.any(String));
           expect(article).toHaveProperty("created_at", expect.any(String));
           expect(article).toHaveProperty("votes", expect.any(Number));
-          expect(article).toHaveProperty(
-            "article_img_url",
-            expect.any(String)
-          );
+          expect(article).toHaveProperty("article_img_url", expect.any(String));
           expect(article).toHaveProperty("comment_count", expect.any(String));
 
           expect(article).not.toHaveProperty("body");
         });
         expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("returns array of comments for given article_id", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toHaveLength(11);
+        comments.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(comment).toHaveProperty("votes", expect.any(Number));
+          expect(comment).toHaveProperty("created_at", expect.any(String));
+          expect(comment).toHaveProperty("author", expect.any(String));
+          expect(comment).toHaveProperty("body", expect.any(String));
+          expect(comment).toHaveProperty("article_id", expect.any(Number));
+        });
+        expect(comments).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("returns error if no matching article_id found", () => {
+    return request(app)
+      .get("/api/articles/20/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+  test("returns error if invalid article_id parameter given", () => {
+    return request(app)
+      .get("/api/articles/mango/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
       });
   });
 });
