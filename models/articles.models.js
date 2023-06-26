@@ -3,7 +3,8 @@ const db = require("../db/connection");
 exports.selectArticleById = (articleId) => {
   return db
     .query(
-      `SELECT * FROM articles
+      `SELECT author, title, article_id, body, topic, created_at, votes, article_img_url
+       FROM articles
        WHERE article_id = $1`,
       [articleId]
     )
