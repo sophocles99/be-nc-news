@@ -4,3 +4,8 @@ exports.handleCustomErrors = (err, req, res, next) => {
   }
   next();
 };
+
+exports.handleServerErrors = (err, req, res, next) => {
+  console.log(err);
+  next(err);
+};
