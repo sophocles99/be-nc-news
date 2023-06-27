@@ -44,15 +44,15 @@ exports.selectCommentsByArticleId = (articleId) => {
     .then(({ rows }) => rows);
 };
 
-exports.insertCommentByArticleId = (newComment) => {
-  const { body, article_id, author, votes, created_at } = newComment;
+exports.insertCommentByArticleId = (article_id, comment) => {
+  const { body, username } = comment;
   return db
     .query(
       `INSERT INTO comments
-                  (body, article_id, author, votes, created_at)
-                  VALUES ($1, $2, $3, $4, $5)
+                  (body, article_id, author)
+                  VALUES ($1, $2, $3)
                   RETURNING *;`,
-      [body, article_id, author, votes, created_at]
+      [body, article_id, username]
     )
     .then(({ rows }) => rows[0]);
 };
