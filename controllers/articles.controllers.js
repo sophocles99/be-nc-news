@@ -1,9 +1,11 @@
+const { insertCommentByArticleId } = require("../models/articles.models");
 const {
   selectArticleById,
   selectArticles,
   selectCommentsByArticleId,
 } = require("../models/articles.models");
 const { checkExists } = require("../models/check-exists.models");
+const { prepareNewComment } = require("../utils/prepare-new-comment");
 
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
@@ -32,6 +34,17 @@ exports.getCommentsByArticleId = (req, res, next) => {
     .then((responseArray) => {
       const comments = responseArray[0];
       res.status(200).send({ comments });
+    })
+    .catch(next);
+};
+
+exports.postCommentByArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  const { comment } = req.body;
+  const newComment = prepareNewComment(article_id, comment);
+  insertCommentByArticleId(newComment)
+    .then((comment) => {
+      res.status(201).send({ comment });
     })
     .catch(next);
 };

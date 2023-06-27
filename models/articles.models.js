@@ -43,3 +43,16 @@ exports.selectCommentsByArticleId = (articleId) => {
     )
     .then(({ rows }) => rows);
 };
+
+exports.insertCommentByArticleId = (newComment) => {
+  const { body, article_id, author, votes, created_at } = newComment;
+  return db
+    .query(
+      `INSERT INTO comments
+                  (body, article_id, author, votes, created_at)
+                  VALUES ($1, $2, $3, $4, $5)
+                  RETURNING *;`,
+      [body, article_id, author, votes, created_at]
+    )
+    .then(({ rows }) => rows[0]);
+};
