@@ -44,8 +44,8 @@ exports.selectCommentsByArticleId = (articleId) => {
     .then(({ rows }) => rows);
 };
 
-exports.insertCommentByArticleId = (article_id, comment) => {
-  const { body, username } = comment;
+exports.insertCommentByArticleId = (article_id, newComment) => {
+  const { body, username } = newComment;
   return db
     .query(
       `INSERT INTO comments
@@ -53,6 +53,19 @@ exports.insertCommentByArticleId = (article_id, comment) => {
                   VALUES ($1, $2, $3)
                   RETURNING *;`,
       [body, article_id, username]
+    )
+    .then(({ rows }) => rows[0]);
+};
+
+exports.updateArticle = (article_id, newVote) => {
+  const { inc_votes } = newVote;
+  return db
+    .query(
+      `UPDATE articles
+          SET votes = votes + $1
+          WHERE article_id = $2
+          RETURNING *;`,
+      [inc_votes, article_id]
     )
     .then(({ rows }) => rows[0]);
 };

@@ -125,7 +125,7 @@ describe("GET /api/articles/:article_id/comments", () => {
 describe("POST: /api/articles/:article_id/comments", () => {
   test("201: returns the successfully posted comment", () => {
     const testComment = {
-      comment: {
+      newComment: {
         username: "butter_bridge",
         body: "Bemused of Basingstoke. What is this guy on?",
       },
@@ -146,11 +146,11 @@ describe("POST: /api/articles/:article_id/comments", () => {
   });
   test("201: ignores any extra properties in posted object", () => {
     const testComment = {
-      comment: {
+      newComment: {
         username: "butter_bridge",
         body: "Bemused of Basingstoke. What is this guy on?",
         irrelevant1: "totally out of place",
-        irrelevant2: 42
+        irrelevant2: 42,
       },
     };
     return request(app)
@@ -165,7 +165,7 @@ describe("POST: /api/articles/:article_id/comments", () => {
   });
   test("404: returns error if article_id doesn't exist", () => {
     const testComment = {
-      comment: {
+      newComment: {
         username: "butter_bridge",
         body: "Bemused of Basingstoke. What is this guy on?",
       },
@@ -180,7 +180,7 @@ describe("POST: /api/articles/:article_id/comments", () => {
   });
   test("404: returns error if username doesn't exist", () => {
     const testComment = {
-      comment: {
+      newComment: {
         username: "franklin_d",
         body: "Bemused of Basingstoke. What is this guy on?",
       },
@@ -195,7 +195,7 @@ describe("POST: /api/articles/:article_id/comments", () => {
   });
   test("400: returns error if article_id is of wrong data type", () => {
     const testComment = {
-      comment: {
+      newComment: {
         username: "butter_bridge",
         body: "Bemused of Basingstoke. What is this guy on?",
       },
@@ -210,7 +210,7 @@ describe("POST: /api/articles/:article_id/comments", () => {
   });
   test("400: returns error if posted comment is malformed", () => {
     const testComment = {
-      comment: {
+      newComment: {
         dodgyKey1: "franklin_d",
         dodgyKey2: "Bemused of Basingstoke. What is this guy on?",
       },
@@ -218,6 +218,141 @@ describe("POST: /api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/2/comments")
       .send(testComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
+
+describe("PATCH: /api/articles/:article_id", () => {
+  test("200: increments a given article's votes when passed newVote object with positive number", () => {
+    const testVoteIncrement = {
+      newVote: {
+        inc_votes: 1,
+      },
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(testVoteIncrement)
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toMatchObject({
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 101,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
+      });
+  });
+  test("200: decrements a given article's votes when passed newVote object with negative number", () => {
+    const testVoteIncrement = {
+      newVote: {
+        inc_votes: -50,
+      },
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(testVoteIncrement)
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toMatchObject({
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 50,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
+      });
+  });
+  test("200: ignores unnecessary properties in newVote object", () => {
+    const testVoteIncrement = {
+      newVote: {
+        inc_votes: 50,
+        extra_nonsense: "why am I even here?",
+      },
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(testVoteIncrement)
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toMatchObject({
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 150,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
+      });
+  });
+  test("404: returns error if article_id not found", () => {
+    const testVoteIncrement = {
+      newVote: {
+        inc_votes: 50,
+      },
+    };
+    return request(app)
+      .patch("/api/articles/14")
+      .send(testVoteIncrement)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+  test("400: returns error if article_id is of wrong data type", () => {
+    const testVoteIncrement = {
+      newVote: {
+        inc_votes: 50,
+      },
+    };
+    return request(app)
+      .patch("/api/articles/banana")
+      .send(testVoteIncrement)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("400: returns error if newVote object malformed", () => {
+    const testVoteIncrement = {
+      newVote: {
+        these_aint_no_votes: 50,
+      },
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(testVoteIncrement)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("400: returns error if inc_votes is wrong data type", () => {
+    const testVoteIncrement = {
+      newVote: {
+        inc_votes: "fifty",
+      },
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(testVoteIncrement)
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad request");
