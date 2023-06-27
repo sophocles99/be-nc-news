@@ -144,7 +144,26 @@ describe("POST: /api/articles/:article_id/comments", () => {
         expect(comment).toHaveProperty("created_at", expect.any(String));
       });
   });
-  test("400: returns error if article_id doesn't exist", () => {
+  test("201: ignores any extra properties in posted object", () => {
+    const testComment = {
+      comment: {
+        username: "butter_bridge",
+        body: "Bemused of Basingstoke. What is this guy on?",
+        irrelevant1: "totally out of place",
+        irrelevant2: 42
+      },
+    };
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(testComment)
+      .expect(201)
+      .then(({ body }) => {
+        const { comment } = body;
+        expect(comment).not.toHaveProperty("irrelevant1");
+        expect(comment).not.toHaveProperty("irrelevant2");
+      });
+  });
+  test("404: returns error if article_id doesn't exist", () => {
     const testComment = {
       comment: {
         username: "butter_bridge",
@@ -154,12 +173,12 @@ describe("POST: /api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/14/comments")
       .send(testComment)
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad request");
+        expect(body.msg).toBe("Not found");
       });
   });
-  test("400: returns error if username doesn't exist", () => {
+  test("404: returns error if username doesn't exist", () => {
     const testComment = {
       comment: {
         username: "franklin_d",
@@ -167,23 +186,22 @@ describe("POST: /api/articles/:article_id/comments", () => {
       },
     };
     return request(app)
-      .post("/api/articles/14/comments")
+      .post("/api/articles/1/comments")
       .send(testComment)
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad request");
+        expect(body.msg).toBe("Not found");
       });
   });
-
-  test("400: returns error if posted comment contains wrong data types", () => {
+  test("400: returns error if article_id is of wrong data type", () => {
     const testComment = {
       comment: {
-        username: 25,
-        body: 25,
+        username: "butter_bridge",
+        body: "Bemused of Basingstoke. What is this guy on?",
       },
     };
     return request(app)
-      .post("/api/articles/2/comments")
+      .post("/api/articles/banana/comments")
       .send(testComment)
       .expect(400)
       .then(({ body }) => {
