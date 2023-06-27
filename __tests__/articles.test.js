@@ -193,7 +193,7 @@ describe("POST: /api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Not found");
       });
   });
-  test("400: returns error if article_id is of wrong data type", () => {
+  test("400: returns error if article_id cannot be cast to correct data type", () => {
     const testComment = {
       newComment: {
         username: "butter_bridge",
@@ -316,7 +316,7 @@ describe("PATCH: /api/articles/:article_id", () => {
         expect(body.msg).toBe("Not found");
       });
   });
-  test("400: returns error if article_id is of wrong data type", () => {
+  test("400: returns error if article_id cannot be cast to correct data type", () => {
     const testVoteIncrement = {
       newVote: {
         inc_votes: 50,
@@ -344,7 +344,7 @@ describe("PATCH: /api/articles/:article_id", () => {
         expect(body.msg).toBe("Bad request");
       });
   });
-  test("400: returns error if inc_votes is wrong data type", () => {
+  test("400: returns error if inc_votes cannot be cast to correct data type", () => {
     const testVoteIncrement = {
       newVote: {
         inc_votes: "fifty",
