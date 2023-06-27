@@ -1,8 +1,6 @@
 const {
   insertCommentByArticleId,
   updateArticle,
-} = require("../models/articles.models");
-const {
   selectArticleById,
   selectArticles,
   selectCommentsByArticleId,
