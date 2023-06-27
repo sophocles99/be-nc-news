@@ -57,5 +57,25 @@
         }
       ]
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "accepts a comment object to be posted relating to the given article_id",
+    "queries": [],
+    "exampleRequest": {
+      "comment": {
+        "username": "butter_bridge",
+        "body": "Bemused of Basingstoke. What is this guy on?"
+      }
+    },
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 19,
+        "body": "Bemused of Basingstoke. What is this guy on?",
+        "article_id": 2,
+        "author": "butter_bridge",
+        "votes": 0,
+        "created_at": "2023-06-27T13:55:52.958Z"
+      }
+    }
   }
 }
