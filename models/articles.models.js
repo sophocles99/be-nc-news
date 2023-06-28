@@ -29,7 +29,7 @@ exports.selectArticles = (topic, sort_by = "created_at", order = "DESC") => {
     queryParams.push(topic);
   }
   queryString += `GROUP BY article_id
-  ORDER BY ${sort_by} ${order};`
+  ORDER BY ${sort_by} ${order};`;
   return db.query(queryString, queryParams).then(({ rows }) => {
     return rows;
   });
@@ -38,9 +38,13 @@ exports.selectArticles = (topic, sort_by = "created_at", order = "DESC") => {
 exports.selectArticleById = (articleId) => {
   return db
     .query(
-      `SELECT author, title, article_id, body, topic, created_at, votes, article_img_url
+      `SELECT articles.author, title, article_id, articles.body, topic,
+       articles.created_at, articles.votes, article_img_url,
+       COUNT (comment_id) AS comment_count
        FROM articles
-       WHERE article_id = $1`,
+       LEFT JOIN comments USING (article_id)
+       WHERE article_id = $1
+       GROUP BY article_id;`,
       [articleId]
     )
     .then(({ rows }) => {
