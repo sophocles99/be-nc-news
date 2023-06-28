@@ -145,6 +145,15 @@ describe("GET /api/articles/:article_id", () => {
         });
       });
   });
+  test("200: article includes comment_count property", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toHaveProperty("comment_count", "11");
+      });
+  });
   test("404: returns error if no matching article_id found", () => {
     return request(app)
       .get("/api/articles/20")
