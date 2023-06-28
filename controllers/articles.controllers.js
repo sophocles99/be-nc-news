@@ -19,13 +19,14 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  const { topic } = req.query;
-  const promises = [selectArticles(topic)]
+  const { topic, sort_by, order } = req.query;
+  const promises = [selectArticles(topic, sort_by, order)];
   if (topic) {
-    promises.push(checkExists("topics", "slug", topic))
+    promises.push(checkExists("topics", "slug", topic));
   }
-  Promise.all(promises).then((responses) => {
-      const articles = responses[0]
+  Promise.all(promises)
+    .then((responses) => {
+      const articles = responses[0];
       res.status(200).send({ articles });
     })
     .catch(next);

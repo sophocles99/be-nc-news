@@ -1,3 +1,4 @@
+const format = require("pg-format");
 const db = require("../db/connection");
 
 exports.selectArticleById = (articleId) => {
@@ -16,7 +17,24 @@ exports.selectArticleById = (articleId) => {
     });
 };
 
-exports.selectArticles = (topic) => {
+exports.selectArticles = (topic, sort_by = "created_at", order = "DESC") => {
+  const validSortBy = [
+    "article_id",
+    "title",
+    "topic",
+    "author",
+    "created_at",
+    "votes",
+    "article_img_url",
+  ];
+  if (!validSortBy.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Bad request" });
+  }
+  const validOrder = ["ASC", "DESC"];
+  order = order.toUpperCase();
+  if (!validOrder.includes(order)) {
+    return Promise.reject({ status: 400, msg: "Bad request" });
+  }
   const queryParams = [];
   let queryString = `SELECT articles.author, articles.title, article_id, topic,
                      articles.created_at, articles.votes, article_img_url, 
@@ -28,7 +46,8 @@ exports.selectArticles = (topic) => {
     queryParams.push(topic);
   }
   queryString += `GROUP BY article_id
-                  ORDER BY created_at DESC;`;
+                  ORDER BY ${sort_by} ${order};`
+  console.log(queryString);
   return db.query(queryString, queryParams).then(({ rows }) => {
     return rows;
   });

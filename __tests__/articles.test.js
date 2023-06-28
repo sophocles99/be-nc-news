@@ -38,7 +38,7 @@ describe("GET /api/articles", () => {
   });
 });
 
-describe("GET /api/articles?query", () => {
+describe.only("GET /api/articles?query", () => {
   test("200: accepts topic query which filters articles by topic", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
@@ -60,7 +60,7 @@ describe("GET /api/articles?query", () => {
         });
       });
   });
-  test("404: returns error if topic not in database", () => {
+  test("404: returns error if topic doesn't exit", () => {
     return request(app)
       .get("/api/articles?topic=david")
       .expect(404)
@@ -68,16 +68,52 @@ describe("GET /api/articles?query", () => {
         expect(body.msg).toBe("Not found");
       });
   });
-  xtest("200: accepts sort_by query", () => {
+  test("200: accepts sort_by query (defaults to created_at, defaults to descending order)", () => {
     return request(app)
       .get("/api/articles?sort_by=title")
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
         expect(articles).toHaveLength(13);
-        expect(articles).toBeSortedBy("title")
+        expect(articles).toBeSortedBy("title", { descending: true });
       });
   });
+  test("400: returns error if sort_by column not in databse", () => {
+    return request(app)
+      .get("/api/articles?sort_by=banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("200: accepts order query (descending)", () => {
+    return request(app)
+      .get("/api/articles?sort_by=article_id&order=desc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(13);
+        expect(articles).toBeSortedBy("article_id", { descending: true });
+      });
+  });
+  test("200: accepts order query (asscending)", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(13);
+        expect(articles).toBeSortedBy("created_at");
+      });
+  });
+  test("400: returns error if order query not asc or desc", ()=>{
+    return request(app)
+      .get("/api/articles?order=banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  })
 });
 
 describe("GET /api/articles/:article_id", () => {
