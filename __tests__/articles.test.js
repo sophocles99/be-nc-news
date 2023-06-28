@@ -60,7 +60,16 @@ describe("GET /api/articles?query", () => {
         });
       });
   });
-  test("404: returns error if topic doesn't exit", () => {
+  test("200: returns empty array if topic exists but there are no articles with that topic", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(0);
+      });
+  });
+  test("404: returns error if topic doesn't exist", () => {
     return request(app)
       .get("/api/articles?topic=david")
       .expect(404)
@@ -106,14 +115,14 @@ describe("GET /api/articles?query", () => {
         expect(articles).toBeSortedBy("created_at");
       });
   });
-  test("400: returns error if order query not asc or desc", ()=>{
+  test("400: returns error if order query not asc or desc", () => {
     return request(app)
       .get("/api/articles?order=banana")
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad request");
       });
-  })
+  });
 });
 
 describe("GET /api/articles/:article_id", () => {
