@@ -1,21 +1,4 @@
-const format = require("pg-format");
 const db = require("../db/connection");
-
-exports.selectArticleById = (articleId) => {
-  return db
-    .query(
-      `SELECT author, title, article_id, body, topic, created_at, votes, article_img_url
-       FROM articles
-       WHERE article_id = $1`,
-      [articleId]
-    )
-    .then(({ rows }) => {
-      if (rows.length === 0) {
-        return Promise.reject({ status: 404, msg: "Not found" });
-      }
-      return rows[0];
-    });
-};
 
 exports.selectArticles = (topic, sort_by = "created_at", order = "DESC") => {
   const validSortBy = [
@@ -37,19 +20,35 @@ exports.selectArticles = (topic, sort_by = "created_at", order = "DESC") => {
   }
   const queryParams = [];
   let queryString = `SELECT articles.author, articles.title, article_id, topic,
-                     articles.created_at, articles.votes, article_img_url, 
-                     COUNT (comment_id) AS comment_count
-                     FROM articles
-                     LEFT JOIN comments USING (article_id) `;
+  articles.created_at, articles.votes, article_img_url, 
+  COUNT (comment_id) AS comment_count
+  FROM articles
+  LEFT JOIN comments USING (article_id) `;
   if (topic) {
     queryString += `WHERE topic = $1 `;
     queryParams.push(topic);
   }
   queryString += `GROUP BY article_id
-                  ORDER BY ${sort_by} ${order};`
+  ORDER BY ${sort_by} ${order};`
   return db.query(queryString, queryParams).then(({ rows }) => {
     return rows;
   });
+};
+
+exports.selectArticleById = (articleId) => {
+  return db
+    .query(
+      `SELECT author, title, article_id, body, topic, created_at, votes, article_img_url
+       FROM articles
+       WHERE article_id = $1`,
+      [articleId]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Not found" });
+      }
+      return rows[0];
+    });
 };
 
 exports.selectCommentsByArticleId = (articleId) => {
