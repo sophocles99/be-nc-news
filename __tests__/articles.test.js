@@ -38,7 +38,7 @@ describe("GET /api/articles", () => {
   });
 });
 
-describe.only("GET /api/articles?query", () => {
+describe("GET /api/articles?query", () => {
   test("200: accepts topic query which filters articles by topic", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
