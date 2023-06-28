@@ -28,6 +28,7 @@ describe("GET /api", () => {
 
 describe("return 404 for invalid endpoint", () => {
   test("return 404 for invalid endpoint", () => {
-    return request(app).get("/api/notanendpoint").expect(404);
+    return request(app).get("/api/notanendpoint").expect(404).then(({body})=>
+    expect(body.msg).toBe("Not found"));
   });
 });
