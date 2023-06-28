@@ -38,6 +38,48 @@ describe("GET /api/articles", () => {
   });
 });
 
+describe("GET /api/articles?query", () => {
+  test("200: accepts topic query which filters articles by topic", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(12);
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("author", expect.any(String));
+          expect(article).toHaveProperty("title", expect.any(String));
+          expect(article).toHaveProperty("article_id", expect.any(Number));
+          expect(article).toHaveProperty("topic", "mitch");
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          expect(article).toHaveProperty("votes", expect.any(Number));
+          expect(article).toHaveProperty("article_img_url", expect.any(String));
+          expect(article).toHaveProperty("comment_count", expect.any(String));
+
+          expect(article).not.toHaveProperty("body");
+        });
+      });
+  });
+  test("404: returns error if topic not in database", () => {
+    return request(app)
+      .get("/api/articles?topic=david")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+  xtest("200: accepts sort_by query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(13);
+        expect(articles).toBeSortedBy("title")
+      });
+  });
+});
+
 describe("GET /api/articles/:article_id", () => {
   test("200: returns article object by id", () => {
     return request(app)

@@ -19,8 +19,13 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  selectArticles()
-    .then((articles) => {
+  const { topic } = req.query;
+  const promises = [selectArticles(topic)]
+  if (topic) {
+    promises.push(checkExists("topics", "slug", topic))
+  }
+  Promise.all(promises).then((responses) => {
+      const articles = responses[0]
       res.status(200).send({ articles });
     })
     .catch(next);
