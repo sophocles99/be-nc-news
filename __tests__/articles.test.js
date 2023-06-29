@@ -127,9 +127,17 @@ describe("GET /api/articles?query", () => {
     return request(app)
       .get("/api/articles?limit=5")
       .expect(200)
-      .then(({ body }) => {
+      .then(({body}) => {
         const { articles } = body;
         expect(articles).toHaveLength(5);
+      });
+  });
+  test("400: returns error if limit cannot be cast to integer", () => {
+    return request(app)
+      .get("/api/articles?limit=mango")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
       });
   });
   test(`200: accepts p query which returns requested page number from results,
@@ -141,8 +149,8 @@ describe("GET /api/articles?query", () => {
         const { articles } = body;
         expect(articles).toHaveLength(5);
         articles.forEach((article, index) => {
-          expect(article).toHaveProperty("article_id", index + 1 + 5)
-        })
+          expect(article).toHaveProperty("article_id", index + 1 + 5);
+        });
       });
   });
   test(`200: for p query, limit defaults to 10 if not specified`, () => {
@@ -153,8 +161,25 @@ describe("GET /api/articles?query", () => {
         const { articles } = body;
         expect(articles).toHaveLength(3);
         articles.forEach((article, index) => {
-          expect(article).toHaveProperty("article_id", index + 1 + 10)
-        })
+          expect(article).toHaveProperty("article_id", index + 1 + 10);
+        });
+      });
+  });
+  test(`200: for p query, returns empty array when page is empty`, () => {
+    return request(app)
+      .get("/api/articles?&p=3&sort_by=article_id&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(0);
+      });
+  });
+  test("400: returns error if p cannot be cast to integer", () => {
+    return request(app)
+      .get("/api/articles?p=mango")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
       });
   });
 });
@@ -448,7 +473,7 @@ describe("POST: /api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Not found");
       });
   });
-  test("400: returns error if article_id cannot be cast to number", () => {
+  test("400: returns error if article_id cannot be cast to integer", () => {
     const testComment = {
       newComment: {
         username: "butter_bridge",
@@ -561,7 +586,7 @@ describe("PATCH: /api/articles/:article_id", () => {
         expect(body.msg).toBe("Not found");
       });
   });
-  test("400: returns error if article_id cannot be cast to number", () => {
+  test("400: returns error if article_id cannot be cast to integer", () => {
     const testVoteIncrement = {
       newVote: {
         inc_votes: 50,
@@ -589,7 +614,7 @@ describe("PATCH: /api/articles/:article_id", () => {
         expect(body.msg).toBe("Bad request");
       });
   });
-  test("400: returns error if inc_votes cannot be cast to number", () => {
+  test("400: returns error if inc_votes cannot be cast to integer", () => {
     const testVoteIncrement = {
       newVote: {
         inc_votes: "fifty",

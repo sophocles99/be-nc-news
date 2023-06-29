@@ -78,9 +78,7 @@ exports.selectArticles = (
     queryParams.push((p - 1) * limit);
     queryString += `OFFSET $${queryParams.length}`;
   }
-  return db.query(queryString, queryParams).then(({ rows }) => {
-    return rows;
-  });
+  return db.query(queryString, queryParams).then(({ rows }) => rows);
 };
 
 exports.selectArticleById = (articleId) => {
