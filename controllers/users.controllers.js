@@ -1,4 +1,5 @@
 const { selectUsers, selectUserByUsername } = require("../models/users.models");
+const { checkExists } = require("../models/check-exists.models");
 
 exports.getUsers = (req, res, next) => {
   selectUsers()
@@ -10,8 +11,13 @@ exports.getUsers = (req, res, next) => {
 
 exports.getUserByUsername = (req, res, next) => {
   const { username } = req.params;
-  selectUserByUsername(username)
-    .then((user) => {
+  const promises = [
+    selectUserByUsername(username),
+    checkExists("users", "username", username),
+  ];
+  Promise.all(promises)
+    .then((responses) => {
+      const user = responses[0];
       res.status(200).send({ user });
     })
     .catch(next);

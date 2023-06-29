@@ -45,4 +45,12 @@ describe("GET /api/users/:username", () => {
         });
       });
   });
+  test("404: returns an error for username that is not in database", () => {
+    return request(app)
+      .get("/api/users/knight_rider")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
 });
