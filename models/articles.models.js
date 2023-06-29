@@ -33,7 +33,13 @@ exports.insertArticle = (newArticle) => {
   });
 };
 
-exports.selectArticles = (topic, sort_by = "created_at", order = "DESC") => {
+exports.selectArticles = (
+  topic,
+  sort_by = "created_at",
+  order = "DESC",
+  limit,
+  p
+) => {
   const validSortBy = [
     "article_id",
     "title",
@@ -62,7 +68,16 @@ exports.selectArticles = (topic, sort_by = "created_at", order = "DESC") => {
     queryParams.push(topic);
   }
   queryString += `GROUP BY article_id
-  ORDER BY ${sort_by} ${order};`;
+  ORDER BY ${sort_by} ${order} `;
+  if (limit) {
+    queryParams.push(limit);
+    queryString += `LIMIT $${queryParams.length} `;
+  }
+  if (p) {
+    if (!limit) limit = 10;
+    queryParams.push((p - 1) * limit);
+    queryString += `OFFSET $${queryParams.length}`;
+  }
   return db.query(queryString, queryParams).then(({ rows }) => {
     return rows;
   });
