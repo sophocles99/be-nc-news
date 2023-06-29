@@ -1,5 +1,38 @@
 const db = require("../db/connection");
 
+exports.insertCommentByArticleId = (article_id, newComment) => {
+  const { body, username } = newComment;
+  return db
+    .query(
+      `INSERT INTO comments
+       (body, article_id, author)
+       VALUES ($1, $2, $3)
+       RETURNING *;`,
+      [body, article_id, username]
+    )
+    .then(({ rows }) => rows[0]);
+};
+
+exports.insertArticle = (newArticle) => {
+  const { title, topic, author, body, article_img_url } = newArticle;
+  let queryString = `INSERT INTO articles `;
+  const queryParams = [title, topic, author, body];
+  if (article_img_url) {
+    queryString += `(title, topic, author, body, article_img_url)
+                    VALUES ($1, $2, $3, $4, $5) `;
+    queryParams.push(article_img_url);
+  } else {
+    queryString += `(title, topic, author, body)
+                    VALUES ($1, $2, $3, $4) `;
+  }
+  queryString += `RETURNING *;`;
+  return db.query(queryString, queryParams).then(({ rows }) => {
+    const postedArticle = rows[0];
+    postedArticle.comment_count = 0;
+    return postedArticle;
+  });
+};
+
 exports.selectArticles = (topic, sort_by = "created_at", order = "DESC") => {
   const validSortBy = [
     "article_id",
@@ -65,19 +98,6 @@ exports.selectCommentsByArticleId = (articleId) => {
       [articleId]
     )
     .then(({ rows }) => rows);
-};
-
-exports.insertCommentByArticleId = (article_id, newComment) => {
-  const { body, username } = newComment;
-  return db
-    .query(
-      `INSERT INTO comments
-                  (body, article_id, author)
-                  VALUES ($1, $2, $3)
-                  RETURNING *;`,
-      [body, article_id, username]
-    )
-    .then(({ rows }) => rows[0]);
 };
 
 exports.updateArticle = (article_id, newVote) => {

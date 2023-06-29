@@ -172,6 +172,131 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
+describe("POST /api/articles", () => {
+  test("201: returns successfully created article", () => {
+    const testArticle = {
+      newArticle: {
+        author: "rogersop",
+        title: "Holidaying in Wigan",
+        body: "Up with the in-laws, coding all day",
+        topic: "paper",
+        article_img_url:
+          "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+      },
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(201)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toMatchObject({
+          article_id: 14,
+          title: "Holidaying in Wigan",
+          topic: "paper",
+          author: "rogersop",
+          body: "Up with the in-laws, coding all day",
+          created_at: expect.any(String),
+          votes: 0,
+          article_img_url:
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          comment_count: 0,
+        });
+      });
+  });
+  test("201: article_img_url is set to default if not provided", () => {
+    const testArticle = {
+      newArticle: {
+        author: "rogersop",
+        title: "Holidaying in Wigan",
+        body: "Up with the in-laws, coding all day",
+        topic: "paper",
+      },
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(201)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toHaveProperty(
+          "article_img_url",
+          "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700"
+        );
+      });
+  });
+  test("201: ignores unnecessary properties in newArticle object", () => {
+    const testArticle = {
+      newArticle: {
+        author: "rogersop",
+        title: "Holidaying in Wigan",
+        body: "Up with the in-laws, coding all day",
+        topic: "paper",
+        extra_nonsense: "not required at all",
+      },
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(201)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).not.toHaveProperty("extra_nonsense");
+      });
+  });
+  test("404: returns error if author not in users table", () => {
+    const testArticle = {
+      newArticle: {
+        author: "barry_manilow",
+        title: "Holidaying in Wigan",
+        body: "Up with the in-laws, coding all day",
+        topic: "paper",
+      },
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(404)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(body.msg).toBe("Not found");
+      });
+  });
+  test("404: returns error if topic not in topics table", () => {
+    const testArticle = {
+      newArticle: {
+        author: "butter_bridge",
+        title: "Holidaying in Wigan",
+        body: "Up with the in-laws, coding all day",
+        topic: "holidays",
+      },
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(404)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(body.msg).toBe("Not found");
+      });
+  });
+  test("400: returns error if article is malformed", () => {
+    const testArticle = {
+      newArticle: {
+        dodgyKey1: "franklin_d",
+        dodgyKey2: "Bemused of Basingstoke. What is this guy on?",
+      },
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
+
 describe("GET /api/articles/:article_id/comments", () => {
   test("200: returns array of comments for given article_id", () => {
     return request(app)
@@ -219,7 +344,7 @@ describe("GET /api/articles/:article_id/comments", () => {
 });
 
 describe("POST: /api/articles/:article_id/comments", () => {
-  test("201: returns the successfully posted comment", () => {
+  test("201: returns the successfully created comment", () => {
     const testComment = {
       newComment: {
         username: "butter_bridge",
