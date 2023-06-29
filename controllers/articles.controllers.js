@@ -54,7 +54,7 @@ exports.postCommentByArticleId = (req, res, next) => {
     .catch(next);
 };
 
-exports.patchArticleById = (req, res, next) => {
+exports.patchArticle = (req, res, next) => {
   const { article_id } = req.params;
   const { newVote } = req.body;
   const promises = [
