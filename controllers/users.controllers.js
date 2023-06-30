@@ -11,13 +11,8 @@ exports.getUsers = (req, res, next) => {
 
 exports.getUserByUsername = (req, res, next) => {
   const { username } = req.params;
-  const promises = [
-    selectUserByUsername(username),
-    checkExists("users", "username", username),
-  ];
-  Promise.all(promises)
-    .then((responses) => {
-      const user = responses[0];
+  selectUserByUsername(username)
+    .then((user) => {
       res.status(200).send({ user });
     })
     .catch(next);
