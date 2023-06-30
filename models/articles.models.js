@@ -60,7 +60,8 @@ exports.selectArticles = (
   const queryParams = [];
   let queryString = `SELECT articles.author, articles.title, article_id, topic,
   articles.created_at, articles.votes, article_img_url, 
-  COUNT (comment_id) AS comment_count
+  COUNT (comment_id) AS comment_count,
+  COUNT (*) OVER() AS total_count
   FROM articles
   LEFT JOIN comments USING (article_id) `;
   if (topic) {

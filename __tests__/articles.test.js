@@ -127,7 +127,7 @@ describe("GET /api/articles?query", () => {
     return request(app)
       .get("/api/articles?limit=5")
       .expect(200)
-      .then(({body}) => {
+      .then(({ body }) => {
         const { articles } = body;
         expect(articles).toHaveLength(5);
       });
@@ -180,6 +180,18 @@ describe("GET /api/articles?query", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("200: returns total_count property showing total count of query results before limit is applied", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&limit=5")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toHaveLength(5);
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("total_count", "12");
+        });
       });
   });
 });
