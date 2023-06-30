@@ -70,12 +70,12 @@ exports.selectArticles = (
   }
   queryString += `GROUP BY article_id
   ORDER BY ${sort_by} ${order} `;
-  if (limit) {
+  if (limit || p) {
+    if (!limit) limit = 10;
     queryParams.push(limit);
     queryString += `LIMIT $${queryParams.length} `;
   }
   if (p) {
-    if (!limit) limit = 10;
     queryParams.push((p - 1) * limit);
     queryString += `OFFSET $${queryParams.length}`;
   }
@@ -102,16 +102,22 @@ exports.selectArticleById = (articleId) => {
     });
 };
 
-exports.selectCommentsByArticleId = (articleId) => {
-  return db
-    .query(
-      `SELECT comment_id, votes, created_at, author, body, article_id
-       FROM comments
-       WHERE article_id = $1
-       ORDER BY created_at DESC;`,
-      [articleId]
-    )
-    .then(({ rows }) => rows);
+exports.selectCommentsByArticleId = (articleId, limit, p) => {
+  let queryString = `SELECT comment_id, votes, created_at, author, body, article_id
+                     FROM comments
+                     WHERE article_id = $1
+                     ORDER BY created_at DESC `;
+  const queryParams = [articleId];
+  if (limit || p) {
+    if (!limit) limit = 10;
+    queryParams.push(limit);
+    queryString += `LIMIT $2 `;
+  }
+  if (p) {
+    queryParams.push((p - 1) * limit);
+    queryString += `OFFSET $${queryParams.length};`;
+  }
+  return db.query(queryString, queryParams).then(({ rows }) => rows);
 };
 
 exports.updateArticle = (article_id, newVote) => {

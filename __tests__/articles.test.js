@@ -153,15 +153,15 @@ describe("GET /api/articles?query", () => {
         });
       });
   });
-  test(`200: for p query, limit defaults to 10 if not specified`, () => {
+  test("200: for p query, limit defaults to 10 if not specified", () => {
     return request(app)
-      .get("/api/articles?&p=2&sort_by=article_id&order=asc")
+      .get("/api/articles?&p=1&sort_by=article_id&order=asc")
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
-        expect(articles).toHaveLength(3);
+        expect(articles).toHaveLength(10);
         articles.forEach((article, index) => {
-          expect(article).toHaveProperty("article_id", index + 1 + 10);
+          expect(article).toHaveProperty("article_id", index + 1);
         });
       });
   });
@@ -407,6 +407,59 @@ describe("GET /api/articles/:article_id/comments", () => {
   test("400: returns error if invalid article_id parameter given", () => {
     return request(app)
       .get("/api/articles/mango/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("200: accepts limit query", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=5")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toHaveLength(5);
+      });
+  });
+  test(`200: accepts p query which returns requested page number from results,
+    with size of page specified by limit query`, () => {
+    const testCommentIdOrder = [
+      8, 6, 12, 3, 4,
+    ]; /* With test data, comments with these IDs
+                                                    should be on second page after default
+                                                    sort by created_at, in descending order */
+    return request(app)
+      .get("/api/articles/1/comments?limit=5&p=2")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toHaveLength(5);
+        comments.forEach((comment, index) => {
+          expect(comment.comment_id).toBe(testCommentIdOrder[index]);
+        });
+      });
+  });
+  test("200: for p query, limit defaults to 10 if not specified", () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=1")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toHaveLength(10);
+      });
+  });
+  test(`200: for p query, returns empty array when page is empty`, () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=3")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toHaveLength(0);
+      });
+  });
+  test("400: returns error if p cannot be cast to integer", () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=mango")
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad request");
