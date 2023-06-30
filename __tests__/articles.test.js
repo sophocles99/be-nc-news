@@ -182,7 +182,7 @@ describe("GET /api/articles?query", () => {
         expect(body.msg).toBe("Bad request");
       });
   });
-  test("200: returns total_count property showing total count of query results before limit is applied", () => {
+  test("200: each article object has total_count property showing count of total query results before limit is applied", () => {
     return request(app)
       .get("/api/articles?topic=mitch&limit=5")
       .expect(200)
