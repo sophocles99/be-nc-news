@@ -38,6 +38,131 @@ describe("GET /api/articles", () => {
   });
 });
 
+describe("POST /api/articles", () => {
+  test("201: returns successfully created article", () => {
+    const testArticle = {
+      newArticle: {
+        author: "rogersop",
+        title: "Holidaying in Wigan",
+        body: "Up with the in-laws, coding all day",
+        topic: "paper",
+        article_img_url:
+          "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+      },
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(201)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toMatchObject({
+          article_id: 14,
+          title: "Holidaying in Wigan",
+          topic: "paper",
+          author: "rogersop",
+          body: "Up with the in-laws, coding all day",
+          created_at: expect.any(String),
+          votes: 0,
+          article_img_url:
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          comment_count: 0,
+        });
+      });
+  });
+  test("201: article_img_url is set to default if not provided", () => {
+    const testArticle = {
+      newArticle: {
+        author: "rogersop",
+        title: "Holidaying in Wigan",
+        body: "Up with the in-laws, coding all day",
+        topic: "paper",
+      },
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(201)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toHaveProperty(
+          "article_img_url",
+          "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700"
+        );
+      });
+  });
+  test("201: ignores unnecessary properties in newArticle object", () => {
+    const testArticle = {
+      newArticle: {
+        author: "rogersop",
+        title: "Holidaying in Wigan",
+        body: "Up with the in-laws, coding all day",
+        topic: "paper",
+        extra_nonsense: "not required at all",
+      },
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(201)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).not.toHaveProperty("extra_nonsense");
+      });
+  });
+  test("404: returns error if author not in users table", () => {
+    const testArticle = {
+      newArticle: {
+        author: "barry_manilow",
+        title: "Holidaying in Wigan",
+        body: "Up with the in-laws, coding all day",
+        topic: "paper",
+      },
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(404)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(body.msg).toBe("Not found");
+      });
+  });
+  test("404: returns error if topic not in topics table", () => {
+    const testArticle = {
+      newArticle: {
+        author: "butter_bridge",
+        title: "Holidaying in Wigan",
+        body: "Up with the in-laws, coding all day",
+        topic: "holidays",
+      },
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(404)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(body.msg).toBe("Not found");
+      });
+  });
+  test("400: returns error if article is malformed", () => {
+    const testArticle = {
+      newArticle: {
+        dodgyKey1: "franklin_d",
+        dodgyKey2: "Bemused of Basingstoke. What is this guy on?",
+      },
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
+
 describe("GET /api/articles?query", () => {
   test("200: accepts topic query which filters articles by topic", () => {
     return request(app)
@@ -243,124 +368,146 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
-describe("POST /api/articles", () => {
-  test("201: returns successfully created article", () => {
-    const testArticle = {
-      newArticle: {
-        author: "rogersop",
-        title: "Holidaying in Wigan",
-        body: "Up with the in-laws, coding all day",
-        topic: "paper",
-        article_img_url:
-          "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+describe("PATCH: /api/articles/:article_id", () => {
+  test("200: increments a given article's votes when passed newVote object with positive number", () => {
+    const testVoteIncrement = {
+      newVote: {
+        inc_votes: 1,
       },
     };
     return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .expect(201)
+      .patch("/api/articles/1")
+      .send(testVoteIncrement)
+      .expect(200)
       .then(({ body }) => {
         const { article } = body;
         expect(article).toMatchObject({
-          article_id: 14,
-          title: "Holidaying in Wigan",
-          topic: "paper",
-          author: "rogersop",
-          body: "Up with the in-laws, coding all day",
-          created_at: expect.any(String),
-          votes: 0,
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 101,
           article_img_url:
-            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
-          comment_count: 0,
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
         });
       });
   });
-  test("201: article_img_url is set to default if not provided", () => {
-    const testArticle = {
-      newArticle: {
-        author: "rogersop",
-        title: "Holidaying in Wigan",
-        body: "Up with the in-laws, coding all day",
-        topic: "paper",
+  test("200: decrements a given article's votes when passed newVote object with negative number", () => {
+    const testVoteIncrement = {
+      newVote: {
+        inc_votes: -50,
       },
     };
     return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .expect(201)
+      .patch("/api/articles/1")
+      .send(testVoteIncrement)
+      .expect(200)
       .then(({ body }) => {
         const { article } = body;
-        expect(article).toHaveProperty(
-          "article_img_url",
-          "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700"
-        );
+        expect(article).toMatchObject({
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 50,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
       });
   });
-  test("201: ignores unnecessary properties in newArticle object", () => {
-    const testArticle = {
-      newArticle: {
-        author: "rogersop",
-        title: "Holidaying in Wigan",
-        body: "Up with the in-laws, coding all day",
-        topic: "paper",
-        extra_nonsense: "not required at all",
+  test("200: ignores unnecessary properties in newVote object", () => {
+    const testVoteIncrement = {
+      newVote: {
+        inc_votes: 50,
+        extra_nonsense: "why am I even here?",
       },
     };
     return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .expect(201)
+      .patch("/api/articles/1")
+      .send(testVoteIncrement)
+      .expect(200)
       .then(({ body }) => {
         const { article } = body;
         expect(article).not.toHaveProperty("extra_nonsense");
       });
   });
-  test("404: returns error if author not in users table", () => {
-    const testArticle = {
-      newArticle: {
-        author: "barry_manilow",
-        title: "Holidaying in Wigan",
-        body: "Up with the in-laws, coding all day",
-        topic: "paper",
+  test("404: returns error if article_id not found", () => {
+    const testVoteIncrement = {
+      newVote: {
+        inc_votes: 50,
       },
     };
     return request(app)
-      .post("/api/articles")
-      .send(testArticle)
+      .patch("/api/articles/14")
+      .send(testVoteIncrement)
       .expect(404)
       .then(({ body }) => {
-        const { article } = body;
         expect(body.msg).toBe("Not found");
       });
   });
-  test("404: returns error if topic not in topics table", () => {
-    const testArticle = {
-      newArticle: {
-        author: "butter_bridge",
-        title: "Holidaying in Wigan",
-        body: "Up with the in-laws, coding all day",
-        topic: "holidays",
+  test("400: returns error if article_id cannot be cast to integer", () => {
+    const testVoteIncrement = {
+      newVote: {
+        inc_votes: 50,
       },
     };
     return request(app)
-      .post("/api/articles")
-      .send(testArticle)
+      .patch("/api/articles/banana")
+      .send(testVoteIncrement)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("400: returns error if newVote object malformed", () => {
+    const testVoteIncrement = {
+      newVote: {
+        these_aint_no_votes: 50,
+      },
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(testVoteIncrement)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("400: returns error if inc_votes cannot be cast to integer", () => {
+    const testVoteIncrement = {
+      newVote: {
+        inc_votes: "fifty",
+      },
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(testVoteIncrement)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
+
+describe("DELETE /api/articles/:article_id", () => {
+  test("204: delete article with given article_id", () => {
+    return request(app).delete("/api/articles/1").expect(204);
+  });
+  test("404: returns error if article_id not found", () => {
+    return request(app)
+      .delete("/api/articles/14")
       .expect(404)
       .then(({ body }) => {
-        const { article } = body;
         expect(body.msg).toBe("Not found");
       });
   });
-  test("400: returns error if article is malformed", () => {
-    const testArticle = {
-      newArticle: {
-        dodgyKey1: "franklin_d",
-        dodgyKey2: "Bemused of Basingstoke. What is this guy on?",
-      },
-    };
+  test("400: returns error if article_id cannot be cast to integer", () => {
     return request(app)
-      .post("/api/articles")
-      .send(testArticle)
+      .delete("/api/articles/coconut")
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad request");
@@ -570,127 +717,3 @@ describe("POST: /api/articles/:article_id/comments", () => {
   });
 });
 
-describe("PATCH: /api/articles/:article_id", () => {
-  test("200: increments a given article's votes when passed newVote object with positive number", () => {
-    const testVoteIncrement = {
-      newVote: {
-        inc_votes: 1,
-      },
-    };
-    return request(app)
-      .patch("/api/articles/1")
-      .send(testVoteIncrement)
-      .expect(200)
-      .then(({ body }) => {
-        const { article } = body;
-        expect(article).toMatchObject({
-          article_id: 1,
-          title: "Living in the shadow of a great man",
-          topic: "mitch",
-          author: "butter_bridge",
-          body: "I find this existence challenging",
-          created_at: "2020-07-09T20:11:00.000Z",
-          votes: 101,
-          article_img_url:
-            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        });
-      });
-  });
-  test("200: decrements a given article's votes when passed newVote object with negative number", () => {
-    const testVoteIncrement = {
-      newVote: {
-        inc_votes: -50,
-      },
-    };
-    return request(app)
-      .patch("/api/articles/1")
-      .send(testVoteIncrement)
-      .expect(200)
-      .then(({ body }) => {
-        const { article } = body;
-        expect(article).toMatchObject({
-          article_id: 1,
-          title: "Living in the shadow of a great man",
-          topic: "mitch",
-          author: "butter_bridge",
-          body: "I find this existence challenging",
-          created_at: "2020-07-09T20:11:00.000Z",
-          votes: 50,
-          article_img_url:
-            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        });
-      });
-  });
-  test("200: ignores unnecessary properties in newVote object", () => {
-    const testVoteIncrement = {
-      newVote: {
-        inc_votes: 50,
-        extra_nonsense: "why am I even here?",
-      },
-    };
-    return request(app)
-      .patch("/api/articles/1")
-      .send(testVoteIncrement)
-      .expect(200)
-      .then(({ body }) => {
-        const { article } = body;
-        expect(article).not.toHaveProperty("extra_nonsense");
-      });
-  });
-  test("404: returns error if article_id not found", () => {
-    const testVoteIncrement = {
-      newVote: {
-        inc_votes: 50,
-      },
-    };
-    return request(app)
-      .patch("/api/articles/14")
-      .send(testVoteIncrement)
-      .expect(404)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Not found");
-      });
-  });
-  test("400: returns error if article_id cannot be cast to integer", () => {
-    const testVoteIncrement = {
-      newVote: {
-        inc_votes: 50,
-      },
-    };
-    return request(app)
-      .patch("/api/articles/banana")
-      .send(testVoteIncrement)
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Bad request");
-      });
-  });
-  test("400: returns error if newVote object malformed", () => {
-    const testVoteIncrement = {
-      newVote: {
-        these_aint_no_votes: 50,
-      },
-    };
-    return request(app)
-      .patch("/api/articles/1")
-      .send(testVoteIncrement)
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Bad request");
-      });
-  });
-  test("400: returns error if inc_votes cannot be cast to integer", () => {
-    const testVoteIncrement = {
-      newVote: {
-        inc_votes: "fifty",
-      },
-    };
-    return request(app)
-      .patch("/api/articles/1")
-      .send(testVoteIncrement)
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Bad request");
-      });
-  });
-});

@@ -1,38 +1,5 @@
 const db = require("../db/connection");
 
-exports.insertCommentByArticleId = (article_id, newComment) => {
-  const { body, username } = newComment;
-  return db
-    .query(
-      `INSERT INTO comments
-       (body, article_id, author)
-       VALUES ($1, $2, $3)
-       RETURNING *;`,
-      [body, article_id, username]
-    )
-    .then(({ rows }) => rows[0]);
-};
-
-exports.insertArticle = (newArticle) => {
-  const { title, topic, author, body, article_img_url } = newArticle;
-  let queryString = `INSERT INTO articles `;
-  const queryParams = [title, topic, author, body];
-  if (article_img_url) {
-    queryString += `(title, topic, author, body, article_img_url)
-                    VALUES ($1, $2, $3, $4, $5) `;
-    queryParams.push(article_img_url);
-  } else {
-    queryString += `(title, topic, author, body)
-                    VALUES ($1, $2, $3, $4) `;
-  }
-  queryString += `RETURNING *;`;
-  return db.query(queryString, queryParams).then(({ rows }) => {
-    const postedArticle = rows[0];
-    postedArticle.comment_count = 0;
-    return postedArticle;
-  });
-};
-
 exports.selectArticles = (
   topic,
   sort_by = "created_at",
@@ -82,7 +49,27 @@ exports.selectArticles = (
   return db.query(queryString, queryParams).then(({ rows }) => rows);
 };
 
-exports.selectArticleById = (articleId) => {
+exports.insertArticle = (newArticle) => {
+  const { title, topic, author, body, article_img_url } = newArticle;
+  let queryString = `INSERT INTO articles `;
+  const queryParams = [title, topic, author, body];
+  if (article_img_url) {
+    queryString += `(title, topic, author, body, article_img_url)
+                    VALUES ($1, $2, $3, $4, $5) `;
+    queryParams.push(article_img_url);
+  } else {
+    queryString += `(title, topic, author, body)
+                    VALUES ($1, $2, $3, $4) `;
+  }
+  queryString += `RETURNING *;`;
+  return db.query(queryString, queryParams).then(({ rows }) => {
+    const postedArticle = rows[0];
+    postedArticle.comment_count = 0;
+    return postedArticle;
+  });
+};
+
+exports.selectArticle = (articleId) => {
   return db
     .query(
       `SELECT articles.author, title, article_id, articles.body, topic,
@@ -99,6 +86,34 @@ exports.selectArticleById = (articleId) => {
         return Promise.reject({ status: 404, msg: "Not found" });
       }
       return rows[0];
+    });
+};
+
+exports.updateArticle = (article_id, newVote) => {
+  const { inc_votes } = newVote;
+  return db
+    .query(
+      `UPDATE articles
+       SET votes = votes + $1
+       WHERE article_id = $2
+       RETURNING *;`,
+      [inc_votes, article_id]
+    )
+    .then(({ rows }) => rows[0]);
+};
+
+exports.deleteArticle = (articleId) => {
+  return db
+    .query(
+      `DELETE FROM articles
+     WHERE article_id = $1
+     RETURNING *;`,
+      [articleId]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Not found" });
+      }
     });
 };
 
@@ -120,15 +135,15 @@ exports.selectCommentsByArticleId = (articleId, limit, p) => {
   return db.query(queryString, queryParams).then(({ rows }) => rows);
 };
 
-exports.updateArticle = (article_id, newVote) => {
-  const { inc_votes } = newVote;
+exports.insertCommentByArticleId = (article_id, newComment) => {
+  const { body, username } = newComment;
   return db
     .query(
-      `UPDATE articles
-       SET votes = votes + $1
-       WHERE article_id = $2
+      `INSERT INTO comments
+       (body, article_id, author)
+       VALUES ($1, $2, $3)
        RETURNING *;`,
-      [inc_votes, article_id]
+      [body, article_id, username]
     )
     .then(({ rows }) => rows[0]);
 };

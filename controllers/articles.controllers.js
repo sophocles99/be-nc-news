@@ -1,10 +1,11 @@
 const {
-  insertCommentByArticleId,
-  insertArticle,
-  selectArticleById,
   selectArticles,
-  selectCommentsByArticleId,
+  insertArticle,
+  selectArticle,
   updateArticle,
+  deleteArticle,
+  selectCommentsByArticleId,
+  insertCommentByArticleId,
 } = require("../models/articles.models");
 const { checkExists } = require("../models/check-exists.models");
 
@@ -22,20 +23,44 @@ exports.getArticles = (req, res, next) => {
     .catch(next);
 };
 
-exports.getArticleById = (req, res, next) => {
+exports.postArticle = (req, res, next) => {
+  const { newArticle } = req.body;
+  insertArticle(newArticle)
+    .then((article) => {
+      res.status(201).send({ article });
+    })
+    .catch(next);
+};
+
+exports.getArticle = (req, res, next) => {
   const { article_id } = req.params;
-  selectArticleById(article_id)
+  selectArticle(article_id)
     .then((article) => {
       res.status(200).send({ article });
     })
     .catch(next);
 };
 
-exports.postArticle = (req, res, next) => {
-  const { newArticle } = req.body;
-  insertArticle(newArticle)
-    .then((article) => {
-      res.status(201).send({ article });
+exports.patchArticle = (req, res, next) => {
+  const { article_id } = req.params;
+  const { newVote } = req.body;
+  const promises = [
+    updateArticle(article_id, newVote),
+    checkExists("articles", "article_id", article_id),
+  ];
+  Promise.all(promises)
+    .then((responses) => {
+      const article = responses[0];
+      res.status(200).send({ article });
+    })
+    .catch(next);
+};
+
+exports.removeArticle = (req, res, next) => {
+  const { article_id } = req.params;
+  deleteArticle(article_id)
+    .then(() => {
+      res.status(204).send();
     })
     .catch(next);
 };
@@ -61,21 +86,6 @@ exports.postCommentByArticleId = (req, res, next) => {
   insertCommentByArticleId(article_id, newComment)
     .then((comment) => {
       res.status(201).send({ comment });
-    })
-    .catch(next);
-};
-
-exports.patchArticle = (req, res, next) => {
-  const { article_id } = req.params;
-  const { newVote } = req.body;
-  const promises = [
-    updateArticle(article_id, newVote),
-    checkExists("articles", "article_id", article_id),
-  ];
-  Promise.all(promises)
-    .then((responses) => {
-      const article = responses[0];
-      res.status(200).send({ article });
     })
     .catch(next);
 };
