@@ -2,28 +2,55 @@
   "GET /api": {
     "description": "serves up a json representation of all the available endpoints of the api"
   },
+  "GET /api/articles": {
+    "description": "serves an array of all articles",
+    "queries": ["topic", "sort_by", "order", "limit", "p"],
+    "exampleResponse": {
+      "articles": [
+        {
+          "author": "icellusedkars",
+          "title": "Eight pug gifs that remind me of mitch",
+          "article_id": 3,
+          "topic": "mitch",
+          "created_at": "2020-11-03T09:12:00.000Z",
+          "votes": 0,
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          "comment_count": "2",
+          "total_count": "12"
+        }
+      ]
+    }
+  },
+  "POST /api/articles": {
+    "description": "accepts an article object to be posted to the articles table",
+    "exampleRequest": {
+      "newArticle": {
+        "author": "rogersop",
+        "title": "Holidaying in Wigan",
+        "body": "Up with the in-laws, coding all day",
+        "topic": "paper",
+        "article_img_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+      }
+    },
+    "exampleResponse": {
+      "article": {
+        "article_id": 14,
+        "title": "Holidaying in Wigan",
+        "topic": "paper",
+        "author": "rogersop",
+        "body": "Up with the in-laws, coding all day",
+        "created_at": "2023-06-30T14:54:25.508Z",
+        "votes": 0,
+        "article_img_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+        "comment_count": 0
+      }
+    }
+  },
   "GET /api/topics": {
     "description": "serves an array of all topics",
     "queries": [],
     "exampleResponse": {
       "topics": [{ "slug": "football", "description": "Footie!" }]
-    }
-  },
-  "GET /api/articles": {
-    "description": "serves an array of all articles",
-    "queries": ["author", "topic", "sort_by", "order"],
-    "exampleResponse": {
-      "articles": [
-        {
-          "title": "Seafood substitutions are increasing",
-          "topic": "cooking",
-          "author": "weegembump",
-          "body": "Text from the article..",
-          "created_at": "2018-05-30T15:59:13.341Z",
-          "votes": 0,
-          "comment_count": 6
-        }
-      ]
     }
   },
   "GET /api/articles/:article_id": {
