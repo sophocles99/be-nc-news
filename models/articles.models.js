@@ -15,6 +15,7 @@ exports.selectArticles = (
     "created_at",
     "votes",
     "article_img_url",
+    "comment_count"
   ];
   if (!validSortBy.includes(sort_by)) {
     return Promise.reject({ status: 400, msg: "Bad request" });
