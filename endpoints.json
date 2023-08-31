@@ -5,6 +5,7 @@
   "GET /api/articles": {
     "description": "serves an array of all articles",
     "queries": ["topic", "sort_by", "order", "limit", "p"],
+    "exampleRequest": {},
     "exampleResponse": {
       "articles": [
         {
@@ -22,7 +23,8 @@
     }
   },
   "POST /api/articles": {
-    "description": "accepts an article object to be posted to the articles table",
+    "description": "accepts an article object to be posted",
+    "queries": [],
     "exampleRequest": {
       "newArticle": {
         "author": "rogersop",
@@ -49,6 +51,7 @@
   "GET /api/articles/:article_id": {
     "description": "serves an article object matching the given article_id",
     "queries": [],
+    "exampleRequest": {},
     "exampleResponse": {
       "article": {
         "article_id": 1,
@@ -84,11 +87,15 @@
     }
   },
   "DELETE /api/articles/:article_id": {
-    "description": "delete article with the given article_id"
+    "description": "deletes the article with the given article_id",
+    "queries": [],
+    "exampleRequest": {},
+    "exampleResponse": {}
   },
   "GET /api/articles/:article_id/comments": {
     "description": "serves an array of comment objects matching the given article_id",
     "queries": [],
+    "exampleRequest": {},
     "exampleResponse": {
       "articles": [
         {
@@ -122,20 +129,63 @@
       }
     }
   },
+  "PATCH /api/comments/:comment_id": {
+    "description": "accepts a newVote object specifying by how much to increment the votes for the given comment_id",
+    "queries": [],
+    "exampleRequest": {
+      "newVote": {
+        "inc_votes": 1
+      }
+    },
+    "exampleResponse": {
+      "comment_id": 1,
+      "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+      "article_id": 9,
+      "author": "butter_bridge",
+      "votes": 17,
+      "created_at": "2020-04-06T12:17:00.000Z"
+    }
+  },
   "DELETE /api/comments/:comment_id": {
     "description": "deletes the comment with given comment_id",
-    "queries": []
+    "queries": [],
+    "exampleRequest": {},
+    "exampleResponse": {}
   },
   "GET /api/topics": {
     "description": "serves an array of all topics",
     "queries": [],
+    "exampleRequest": {},
     "exampleResponse": {
-      "topics": [{ "slug": "football", "description": "Footie!" }]
+      "topics": [
+        { "slug": "football", "description": "Footie!" },
+        {
+          "slug": "cooking",
+          "description": "Hey good looking, what you got cooking?"
+        }
+      ]
+    }
+  },
+  "POST /api/topics": {
+    "description": "accepts a topic object to be posted",
+    "queries": [],
+    "exampleRequest": {
+      "newTopic": {
+        "slug": "holidays",
+        "description": "everything and anything about vacations"
+      }
+    },
+    "exampleResponse": {
+      "topic": {
+        "slug": "holidays",
+        "description": "everything and anything about vacations"
+      }
     }
   },
   "GET /api/users": {
     "description": "serves an array of all users",
     "queries": [],
+    "exampleRequest": {},
     "exampleResponse": {
       "users": [
         {
@@ -144,6 +194,16 @@
           "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
         }
       ]
+    }
+  },
+  "GET /api/users/:username": {
+    "description": "serves a user object matching the given username",
+    "queries": [],
+    "exampleRequest": {},
+    "exampleResponse": {
+      "username": "butter_bridge",
+      "name": "jonny",
+      "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
     }
   }
 }
