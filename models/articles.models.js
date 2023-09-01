@@ -14,7 +14,6 @@ exports.selectArticles = (
     "author",
     "created_at",
     "votes",
-    "article_img_url",
     "comment_count"
   ];
   if (!validSortBy.includes(sort_by)) {
