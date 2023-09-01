@@ -1,4 +1,3 @@
-const fs = require("fs/promises");
 const oldArticles = require("./oldArticles");
 
 const yearInMilliseconds = 365 * 24 * 60 * 60 * 1000;
@@ -22,7 +21,7 @@ const literatureArticles = [
     created_at: 1649347200000,
     votes: 0,
     article_img_url:
-      "https://images.pexels.com/photos/376006/pexels-photo-376006.jpeg?w=700&h=700",
+      "https://sophocles99-images.s3.eu-west-2.amazonaws.com/classics.jpg",
   },
   {
     title: "The Power of Words: How Literature Shapes Our Lives",
@@ -32,7 +31,7 @@ const literatureArticles = [
     created_at: 1652803200000,
     votes: 0,
     article_img_url:
-      "https://images.pexels.com/photos/1597556/pexels-photo-1597556.jpeg?w=700&h=700",
+      "https://sophocles99-images.s3.eu-west-2.amazonaws.com/words.jpg",
   },
   {
     title: "Book Review: 'The Enigmatic Garden' by Emily Rivers",
@@ -42,7 +41,7 @@ const literatureArticles = [
     created_at: 1656288000000,
     votes: 0,
     article_img_url:
-      "https://images.pexels.com/photos/2387950/pexels-photo-2387950.jpeg?w=700&h=700",
+      "https://sophocles99-images.s3.eu-west-2.amazonaws.com/enigmatic-garden.jpg",
   },
   {
     title: "Diving into Dystopia: Exploring Dark Themes in Modern Literature",
@@ -52,7 +51,7 @@ const literatureArticles = [
     created_at: 1659744000000,
     votes: 0,
     article_img_url:
-      "https://images.pexels.com/photos/761688/pexels-photo-761688.jpeg?w=700&h=700",
+      "https://sophocles99-images.s3.eu-west-2.amazonaws.com/dystopia.jpg",
   },
   {
     title: "Unveiling the Layers: Symbolism in Literature",
@@ -62,7 +61,7 @@ const literatureArticles = [
     created_at: 1663228800000,
     votes: 0,
     article_img_url:
-      "https://images.pexels.com/photos/1591056/pexels-photo-1591056.jpeg?w=700&h=700",
+      "https://sophocles99-images.s3.eu-west-2.amazonaws.com/symbolism.jpg",
   },
   {
     title: "A Journey Through Genre: Exploring Literary Diversity",
@@ -72,7 +71,7 @@ const literatureArticles = [
     created_at: 1666694400000,
     votes: 0,
     article_img_url:
-      "https://images.pexels.com/photos/1598065/pexels-photo-1598065.jpeg?w=700&h=700",
+      "https://sophocles99-images.s3.eu-west-2.amazonaws.com/diversity.jpg",
   },
   {
     title: "Rediscovering the Classics: Time-Tested Tales That Still Resonate",
@@ -82,7 +81,7 @@ const literatureArticles = [
     created_at: 1670179200000,
     votes: 0,
     article_img_url:
-      "https://images.pexels.com/photos/2253876/pexels-photo-2253876.jpeg?w=700&h=700",
+      "https://sophocles99-images.s3.eu-west-2.amazonaws.com/Shakespeare+and+Dickens.jpg",
   },
   {
     title: "Book Spotlight: 'Whispers in the Woods' by Harper Lane",
@@ -92,7 +91,7 @@ const literatureArticles = [
     created_at: 1673654400000,
     votes: 0,
     article_img_url:
-      "https://images.pexels.com/photos/2248884/pexels-photo-2248884.jpeg?w=700&h=700",
+      "https://sophocles99-images.s3.eu-west-2.amazonaws.com/whispers-woods.jpg",
   },
   {
     title: "The Art of Character Development in Literature",
@@ -101,8 +100,7 @@ const literatureArticles = [
     body: "Compelling characters are at the heart of memorable stories. Authors skillfully craft protagonists, antagonists, and supporting characters with depth, flaws, and motivations that resonate with readers. Exploring the techniques behind character development reveals the intricate artistry that brings fictional personas to life.",
     created_at: 1677129600000,
     votes: 0,
-    article_img_url:
-      "https://images.pexels.com/photos/1598066/pexels-photo-1598066.jpeg?w=700&h=700",
+    article_img_url: "https://sophocles99-images.s3.eu-west-2.amazonaws.com/character.jpg",
   },
   {
     title: "Book Review: 'Echoes of Eternity' by Sofia Ramirez",
@@ -112,7 +110,7 @@ const literatureArticles = [
     created_at: 1680604800000,
     votes: 0,
     article_img_url:
-      "https://images.pexels.com/photos/1254690/pexels-photo-1254690.jpeg?w=700&h=700",
+      "https://sophocles99-images.s3.eu-west-2.amazonaws.com/echoes-eternity.jpg",
   },
 ];
 
